@@ -8,18 +8,15 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
+import java.io.IOException;
 import java.net.URI;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Created by justin on 15-11-5.
  */
 public class WebSocket {
     @org.eclipse.jetty.websocket.api.annotations.WebSocket(maxTextMessageSize = 64 * 1024)
-    private static class ClientSocket {
+    public static class ClientSocket {
         @SuppressWarnings("unused")
         private Session session;
 
@@ -38,7 +35,7 @@ public class WebSocket {
         public void onConnect(Session session) {
             this.session = session;
             if (onConnectCallback != null) {
-                onConnectCallback.execute(session);
+                onConnectCallback.execute(session.toString());
             }
         }
 
@@ -51,15 +48,9 @@ public class WebSocket {
 
         public void sendMsg(String msg) {
             if (session != null) {
-                Future<Void> fut;
-                fut = session.getRemote().sendStringByFuture(msg);
                 try {
-                    fut.get(2, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (TimeoutException e) {
+                    session.getRemote().sendString(msg);
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -81,10 +72,12 @@ public class WebSocket {
     private WebSocketClient client;
     private ClientSocket socket;
 
-    public void connect(String url, Callback<String, String> cb) {
+    public WebSocket() {
         client = new WebSocketClient();
         socket = new ClientSocket();
+    }
 
+    public void connect(String url, Callback<String, String> cb) {
         socket.setOnConnectCallback(cb);
         try {
             client.start();
@@ -106,12 +99,10 @@ public class WebSocket {
     }
 
     public void sendMessage(String message) {
-        if (socket != null)
-            socket.sendMsg(message);
+        socket.sendMsg(message);
     }
 
     public void onMessage(Callback<String, String> cb) {
-        if (socket != null)
-            socket.setOnMessageCallback(cb);
+        socket.setOnMessageCallback(cb);
     }
 }
