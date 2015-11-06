@@ -58,8 +58,11 @@ public class Client
                     doneSignal.countDown();
                     Constants.clientsWorkDoneSignal.countDown();
                 } else if ("notification".equals(msgType)) {
-                    analyticsMap.get("message_latency").setEndTime(new Date());
+                    Analytics latencyAnalytics = analyticsMap.get("message_latency");
+                    latencyAnalytics.setEndTime(new Date());
                     System.out.println(analyticsMap.get("message_latency").getEndTime().getTime() - analyticsMap.get("message_latency").getStartTime().getTime());
+                    Constants.analyticses.add(latencyAnalytics);
+                    Constants.analyticsDoneSignal.countDown();
                     ack(messageBody.updates);
                 }
                 return null;
