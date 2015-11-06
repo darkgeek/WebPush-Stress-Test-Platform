@@ -1,12 +1,16 @@
 package im.darkgeek.stp.actor;
 
 import im.darkgeek.stp.connection.WebSocket;
+import im.darkgeek.stp.task.Analytics;
 import im.darkgeek.stp.utils.Callback;
 import im.darkgeek.stp.utils.Constants;
 import im.darkgeek.stp.utils.JsonUtils;
 import im.darkgeek.stp.utils.SecurityUtils;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -18,6 +22,7 @@ public class Client
     private WebSocket webSocket;
     private String wsUrl;
     private Client thisClient;
+    private Map<String, Analytics> analyticsMap = new HashMap<String, Analytics>(1);
 
     public static class MessageBody {
         public String messageType;
@@ -51,6 +56,11 @@ public class Client
                     Constants.channelMap.put(messageBody.channelID, thisClient);
                     // Ends the register
                     doneSignal.countDown();
+                    Constants.clientsWorkDoneSignal.countDown();
+                } else if ("notification".equals(msgType)) {
+                    analyticsMap.get("message_latency").setEndTime(new Date());
+                    System.out.println(analyticsMap.get("message_latency").getEndTime().getTime() - analyticsMap.get("message_latency").getStartTime().getTime());
+                    ack(messageBody.updates);
                 }
                 return null;
             }
@@ -95,6 +105,15 @@ public class Client
         webSocket.sendMessage(message);
     }
 
+    private void ack(List<MessageBody.Update> updates) {
+        MessageBody messageBody = new MessageBody();
+        messageBody.messageType = "ack";
+        messageBody.updates = updates;
+
+        String message = JsonUtils.toJson(messageBody);
+        webSocket.sendMessage(message);
+    }
+
     private void await() {
         try {
             doneSignal = new CountDownLatch(1);
@@ -102,5 +121,9 @@ public class Client
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public Map<String, Analytics> getAnalyticsMap() {
+        return analyticsMap;
     }
 }
