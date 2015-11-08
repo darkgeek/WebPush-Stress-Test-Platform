@@ -16,4 +16,13 @@ public class SecurityUtils {
         return
                 ThreadLocalRandom.current().nextInt(min, max + 1);
     }
+
+    public static void sleep(int millisecond) {
+        try {
+            Thread.sleep(millisecond);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

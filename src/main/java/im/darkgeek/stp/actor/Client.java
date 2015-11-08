@@ -60,7 +60,6 @@ public class Client
                 } else if ("notification".equals(msgType)) {
                     Analytics latencyAnalytics = analyticsMap.get("message_latency");
                     latencyAnalytics.setEndTime(new Date());
-                    System.out.println(analyticsMap.get("message_latency").getEndTime().getTime() - analyticsMap.get("message_latency").getStartTime().getTime());
                     Constants.analyticses.add(latencyAnalytics);
                     Constants.analyticsDoneSignal.countDown();
                     ack(messageBody.updates);
@@ -82,7 +81,6 @@ public class Client
     private void connect() {
         Callback<String, String> onConnected = new Callback<String, String>() {
             public String execute(String param) {
-                System.out.println("Connected: " + param);
                 doneSignal.countDown();
                 return null;
             }

@@ -15,6 +15,10 @@ import java.util.concurrent.CountDownLatch;
 public class Constants {
     public final static String FULL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
+    public static int CLIENT_COUNT = 500;
+
+    public static int SLEEP_MILLISECOND = 10;
+
     public static Map<String, String> endpointMap = new ConcurrentHashMap<String, String>();
 
     public static Map<String, Client> channelMap = new ConcurrentHashMap<String, Client>();

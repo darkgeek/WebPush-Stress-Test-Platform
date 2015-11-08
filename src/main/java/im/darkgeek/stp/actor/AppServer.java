@@ -30,6 +30,7 @@ public class AppServer
             client.getAnalyticsMap().put(analytics.getType(), analytics);
 
             sendVersion(ep);
+            SecurityUtils.sleep(Constants.SLEEP_MILLISECOND);
         }
     }
 
