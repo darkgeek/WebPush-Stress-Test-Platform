@@ -85,6 +85,13 @@ public class Client
                 return null;
             }
         };
+        Callback<String, String> onDisconnected = new Callback<String, String>() {
+            public String execute(String param) {
+                System.out.println("Disconnected: " + param);
+                return null;
+            }
+        };
+        webSocket.onDisconnect(onDisconnected);
         webSocket.connect(wsUrl, onConnected);
     }
 

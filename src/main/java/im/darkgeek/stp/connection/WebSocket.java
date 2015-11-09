@@ -89,9 +89,8 @@ public class WebSocket {
         }
     }
 
-    public void disconnect(Callback<String, String> cb) {
+    public void disconnect() {
         try {
-            socket.setOnCloseCallback(cb);
             client.stop();
         } catch (Exception e) {
             e.printStackTrace();
@@ -104,5 +103,9 @@ public class WebSocket {
 
     public void onMessage(Callback<String, String> cb) {
         socket.setOnMessageCallback(cb);
+    }
+
+    public void onDisconnect(Callback<String, String> cb) {
+        socket.setOnCloseCallback(cb);
     }
 }
