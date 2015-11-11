@@ -27,7 +27,14 @@ public class Container {
 
         Thread asThread = new Thread(new AppServer());
         asThread.start();
+
+        Monitor monitor = new Monitor();
+        Thread monitorThread = new Thread(monitor);
+        monitorThread.start();
+        monitor.startMonitor(Constants.PUSH_SERVER_PID);
         Constants.analyticsDoneSignal.await();
+        monitor.stopMonitor();
+//        monitor.quitMonitor();
 
         // Calculate the medium latency
         AlgorithmUtils.MedianFinder medianFinder = new AlgorithmUtils.MedianFinder();
@@ -44,16 +51,23 @@ public class Container {
     }
 
     private static void processCommandLine(String[] args) {
-        if (args.length == 1) {
-            System.out.println("Usage: java -jar " + getJarFilePath() + " [client_count] [sleep_millisecond]");
+        if (args.length == 0)
+            return;
+
+        if (args.length < 6) {
+            System.out.println("Usage: java -jar " + getJarFilePath() + "" +
+                    " [client_count] [sleep_millisecond] [push_server_pid] [push_server_address]" +
+                    " [push_server_port] [monitor_server_port]");
             System.exit(1);
         }
-        else if (args.length == 0)
-            return;
 
         try {
             Constants.CLIENT_COUNT = Integer.parseInt(args[0]);
             Constants.SLEEP_MILLISECOND = Integer.parseInt(args[1]);
+            Constants.PUSH_SERVER_PID = Integer.parseInt(args[2]);
+            Constants.PUSH_SERVER_ADDRESS = args[3];
+            Constants.PUSH_SERVER_PORT = Integer.parseInt(args[4]);
+            Constants.MONITOR_PORT = Integer.parseInt(args[5]);
         } catch (NumberFormatException ex) {
             System.out.println("Invalid parameter value type: expect int.");
             System.exit(2);

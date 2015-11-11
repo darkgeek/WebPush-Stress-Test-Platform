@@ -19,6 +19,14 @@ public class Constants {
 
     public static int SLEEP_MILLISECOND = 10;
 
+    public static int PUSH_SERVER_PID = 2836;
+
+    public static String PUSH_SERVER_ADDRESS = "127.0.0.1";
+
+    public static int PUSH_SERVER_PORT = 3000;
+
+    public static int MONITOR_PORT = 9002;
+
     public static Map<String, String> endpointMap = new ConcurrentHashMap<String, String>();
 
     public static Map<String, Client> channelMap = new ConcurrentHashMap<String, Client>();

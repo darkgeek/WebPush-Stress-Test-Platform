@@ -9,6 +9,7 @@ use threads::shared;
 use Data::Dumper;
 use IO::Socket;
 use Net::hostent;
+use Time::HiRes qw(usleep);
 
 use constant PORT => 9002;
 my $stat_task;
@@ -41,14 +42,13 @@ sub stat_job {
     say "Push server pid is $push_server_pid";
     while (!$stop_task) {
         push @stats, get_current_stat_by_pid($push_server_pid);
-        sleep(1);
+        usleep(200);
     }
 
     say "stop this job!";
-    print Dumper(@stats);
 
     my $cal_res = calculate();
-    print $client $cal_res->{cpu}."-".$cal_res->{mem};
+    print "Average CPU usage: ".$cal_res->{cpu}.". Average memory usage: ".$cal_res->{mem}."\n";
     close $client;
 }
 
@@ -122,10 +122,12 @@ sub start_stat_task {
     my @params = split ' ', $raw_cmd;
 
     $push_server_pid = $params[1];
+    print $client "OK\n";
     $stat_task = threads->create(\&stat_job, $client) unless defined $stat_task;
 }
 
 sub stop_stat_task {
+    my $client = shift;
     $stop_task = 1;
 }
 
